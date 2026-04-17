@@ -1,22 +1,29 @@
 import { Component, computed, input, signal } from '@angular/core';
-import { DUMMY_TASKS } from '../dummy-tasks';
+import { AddTaskModalComponent } from './new-task/new-task.component';
 import { TaskComponent } from './task/task.component';
-
+import { TasksService } from './tasks.service';
 @Component({
   selector: 'app-tasks',
   standalone: true,
-  imports: [TaskComponent],
+  imports: [TaskComponent, AddTaskModalComponent],
   templateUrl: './tasks.component.html',
   styleUrls: ['./tasks.component.css'],
 })
 export class TasksComponent {
   name = input.required<string>();
   userId = input.required<string>();
-  tasks = signal(DUMMY_TASKS);
+  isAddingTask = signal(false);
+  constructor(private tasksService: TasksService) {}
+
   selectedUserTasks = computed(() => {
-    return this.tasks().filter((task) => task.userId === this.userId());
+    return this.tasksService.getUserTasks(this.userId());
   });
-  onCompleteTask(taskId: string) {
-    this.tasks.set(this.tasks().filter((task) => task.id !== taskId));
+
+  onStartAddTask() {
+    this.isAddingTask.set(true);
+  }
+
+  onCancelAddTask() {
+    this.isAddingTask.set(false);
   }
 }
